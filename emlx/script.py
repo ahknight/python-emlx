@@ -35,6 +35,8 @@ def main(argc, argv):
                             action="store_true", help="simulate actions only")
     parser.add_argument("-r", "--recursive",
                             action="store_true", help="also import all subfolders")
+    parser.add_argument("-p", "--preserve",
+                            action="store_true", help="preserve folder structure (only makes sense with --recursive)")
     parser.add_argument("-l", "--fs",
                             action="store_true", help="use FS layout for maildir subfolders instead of Maildir++")
     parser.add_argument("source", nargs="+")
@@ -103,14 +105,22 @@ def main(argc, argv):
         
         for box in sources:
             logging.info("%s: starting import" % box.name)
+            
             if STOP:
                 break
+            
+            if args.preserve:
+                box_maildir = maildir.create_folder(box.name)
+            else:
+                box_maildir = maildir
+            logging.info("writing messages to %s" % box_maildir.name)
+            
             for msg in progress.bar(box.messages(), expected_size=len(box.messages()), label="Importing %s: " % box.name):
                 if STOP:
                     break
                 if args.dry_run == False:
                     m = msg.get_message()
-                    maildir.add_message(m.get_maildir_message())
+                    box_maildir.add_message(m.get_maildir_message())
                 else:
                     if msg.partial:
                         m = msg.get_message()
