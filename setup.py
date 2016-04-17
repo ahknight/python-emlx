@@ -23,7 +23,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 3 - Alpha',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
@@ -54,6 +54,7 @@ setup(
     # List run-time dependencies here.  These will be installed by pip when your
     # project is installed.
     # install_requires = ['peppercorn'],
+    install_requires = ['maildir', 'clint'],
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
@@ -73,7 +74,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'emlx-to-maildir=emlx.converter:main',
+            'emlx-to-maildir=emlx.script:start',
         ],
     },
 )

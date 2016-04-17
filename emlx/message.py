@@ -36,7 +36,7 @@ class EmlxMessage(object):
         return str(self.content)
     
     def __bytes__(self):
-        content_size = str(self.content_size).encode("utf8")
+        content_size = str(len(self.content)).encode("utf8")
         meta = plistlib.dumps(self.plist)
         return (content_size + b"\n" + self.content + meta)
     
@@ -100,7 +100,6 @@ class EmlxMessage(object):
     
     def get_maildir_message(self):
         m = MaildirMessage(self.content)
-        m.set_subdir("new")
         
         if self.date_received is not None:
             m.set_date(self.date_received)
