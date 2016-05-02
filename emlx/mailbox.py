@@ -87,6 +87,9 @@ class AMMessageRef(object):
                 for part in parts:
                     partno = parts.index(part) + 1
                     
+                    if type(part) is str:
+                        continue
+                    
                     if part.is_multipart():
                         load_parts(part, "%s.%d" % (prefix, partno))
                     
@@ -107,7 +110,7 @@ class AMMessageRef(object):
                             parts_loaded +=1
                         
                         except Exception as e:
-                            logging.exception("%s: error loading message part %d" % (path, partno))
+                            logging.error("%s: error loading message part %d" % (path, partno))
                 
                 if parts_loaded != parts_needed:
                     logging.warning("%s: message may be incomplete (found %d parts of %d)" % (
@@ -127,7 +130,12 @@ class AMMessageRef(object):
         
         return msg
 
-
+# There are three types of mailboxes:
+# 1. The type used by the app for daily operation. This has a trie system for storage and keeps messages in a folder called Messages at the bottom. 
+# 2. An export format where the mbox directory contains a mbox file and a TOC. This file is a standard mailspool file and should be read as such and not modified.
+# 3. An older format where the emlx files are a flat list inside the mbox directory.
+# 
+# Currently, this handles only the first format. It should handle them all. 
 class AMMailbox(object):
     parent = None
     path = None
