@@ -115,12 +115,15 @@ def main(argc, argv):
                 box_maildir = maildir
             logging.info("writing messages to %s" % box_maildir.name)
             
-            for msg in progress.bar(box.messages(), expected_size=len(box.messages()), label="Importing %s: " % box.name):
+            for msg in progress.bar(box.messages(), expected_size=len(box.messages()), label="Importing %s: " % box.name, every=250):
                 if STOP:
                     break
                 if args.dry_run == False:
-                    m = msg.get_message()
-                    box_maildir.add_message(m.get_maildir_message())
+                    try:
+                        m = msg.get_message()
+                        box_maildir.add_message(m.get_maildir_message())
+                    except:
+                        logging.error("%s: invalid emlx file (msg %s)" % (path, msg.msgid))
                 else:
                     if msg.partial:
                         m = msg.get_message()
