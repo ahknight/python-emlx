@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import plistlib  # 3.4+
+import logging
 from maildir_lite import MaildirMessage
 
 
@@ -12,14 +13,13 @@ class EmlxMessage(object):
     def __init__(self, message=None):
         if isinstance(message, bytes):
             # The size of the message is the first line of the file.
-            start = end = 0
-            end = message.find(b'\n')
-            if end is -1:
+            first_line = message.split(b"\n")[0]
+            self.content_size = int(first_line)
+            if self.content_size is 0:
                 return
-            self.content_size = int(message[start:end])
             
             # Read in the message portion.
-            start = end + 1
+            start = len(first_line) + 1
             end = start + self.content_size
             if start > 0 and end > 0:
                 self.content = message[start:end]
@@ -27,8 +27,10 @@ class EmlxMessage(object):
             # Read in the plist metadata at the end.
             if start > 0 and end > 0:
                 meta = message[end:]
-                if meta:
+                try:
                     self.plist = plistlib.loads(meta)
+                except:
+                    logging.error("failed to parse message metadata plist")
     
     def __str__(self):
         if not self.content:
@@ -105,6 +107,13 @@ class EmlxMessage(object):
             m.set_date(self.date_received)
         
         flags_dict = self.flags
+        
+        # If the plist failed to parse, this will be empty.
+        # We do lose state here, but there's little to be done
+        # at this point.
+        if len(flags_dict) == 0:
+            return m
+        
         if flags_dict['draft']:
             m.add_flag('D')
         if flags_dict['flagged']:
