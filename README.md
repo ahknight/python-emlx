@@ -1,3 +1,3 @@
 # python-emlx
 
-A library to read and reassemble messages from the Apple Mail.
+A library to read and reassemble messages from Apple Mail's on-disk storage (both downloaded and cached).
